@@ -565,7 +565,7 @@ function EventDetails() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-4xl p-6">
+    <div className="mx-auto w-full p-6">
       <h1 className="text-2xl font-semibold">ICC / BIP Portal Document Details</h1>
       <p className="mt-2 text-sm text-gray-600">
         First 3 attachments (ICC) and remaining attachments (BIP) are merged and displayed once without repetition.
