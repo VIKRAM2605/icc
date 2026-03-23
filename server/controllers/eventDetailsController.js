@@ -27,7 +27,8 @@ const getUploadedFilePath = (files, fieldName) => {
 export async function createEventDetails(request, response, next) {
   try {
     const { body, files } = request;
-    const userId = getBodyValue(body, "userId") || randomUUID();
+    const bodyUserId = getBodyValue(body, "userId");
+    const userId = String(request.user?.id ?? (bodyUserId || randomUUID()));
 
     const faculty = {
       faculty1: getBodyValue(body, "faculty1"),

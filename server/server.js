@@ -4,6 +4,7 @@ import express from "express";
 import cors from "cors";
 import multer from "multer";
 import eventDetailsRoutes from "./routes/eventDetailsRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 import { runMigrations } from "./utils/runMigrations.js";
 
 dotenv.config();
@@ -20,6 +21,7 @@ app.get("/", (_request, response) => {
   response.send("Event details backend is running.");
 });
 
+app.use("/api/auth", authRoutes);
 app.use("/api/event-details", eventDetailsRoutes);
 
 app.use((error, _request, response, _next) => {

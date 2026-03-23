@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createEventDetails } from "../../../config/api";
+import { getAuthToken } from "../../utils/auth";
 
 const EVENT_DETAILS_STORAGE_KEY = "event-details-form-values";
 
@@ -845,7 +846,12 @@ function EventDetails() {
         formData.append(field.key, String(value ?? ""));
       });
 
-      await createEventDetails(formData);
+      const token = getAuthToken();
+      if (!token) {
+        throw new Error("Please login again to continue.");
+      }
+
+      await createEventDetails(formData, token);
       window.localStorage.removeItem(EVENT_DETAILS_STORAGE_KEY);
       setFormValues(initialValues);
       setErrors({});
@@ -1168,7 +1174,7 @@ function EventDetails() {
           </div>
 
           <div className="mt-4 overflow-x-auto">
-            <div className="relative min-w-[760px] px-2 pb-1">
+            <div className="relative min-w-190 px-2 pb-1">
               <div className="absolute left-8 right-8 top-4 h-0.5 bg-gray-300" />
               <div className="relative flex items-start justify-between gap-2">
                 {stepSections.map((group, index) => {
