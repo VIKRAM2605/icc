@@ -32,6 +32,38 @@ const getNumericUserId = (requestUserId) => {
   return Number.isFinite(parsed) ? parsed : null;
 };
 
+const triggerReviewNotification = ({ eventRow, nextStatus, rejectionMessage }) => {
+  if (!eventRow?.owner_email) {
+    return false;
+  }
+
+  const eventName = eventRow.event_name || `Event #${eventRow.id}`;
+  const decisionLabel = nextStatus === "approved" ? "approved" : "rejected";
+
+  const subject = `Your event "${eventName}" was ${decisionLabel}`;
+  const textParts = [
+    `Hello ${eventRow.owner_name || "Faculty"},`,
+    "",
+    `Your event "${eventName}" has been ${decisionLabel} by admin.`,
+  ];
+
+  if (nextStatus === "rejected" && rejectionMessage) {
+    textParts.push("", `Rejection message: ${rejectionMessage}`);
+  }
+
+  textParts.push("", "Regards,", "BIT IIC Admin");
+
+  void sendEmail({
+    to: eventRow.owner_email,
+    subject,
+    text: textParts.join("\n"),
+  }).catch((error) => {
+    console.error("Failed to send review notification email:", error?.message || error);
+  });
+
+  return true;
+};
+
 const normalizeEventRow = (row) => ({
   id: row.id,
   userId: row.user_id,
@@ -530,41 +562,13 @@ export async function reviewEventByAdmin(request, response, next) {
     );
 
     const updatedEvent = updatedRows[0];
-    let emailSent = false;
-
-    if (eventRow.owner_email) {
-      const eventName = eventRow.event_name || `Event #${eventRow.id}`;
-      const decisionLabel = nextStatus === "approved" ? "approved" : "rejected";
-
-      const subject = `Your event \"${eventName}\" was ${decisionLabel}`;
-      const textParts = [
-        `Hello ${eventRow.owner_name || "Faculty"},`,
-        "",
-        `Your event \"${eventName}\" has been ${decisionLabel} by admin.`,
-      ];
-
-      if (nextStatus === "rejected" && rejectionMessage) {
-        textParts.push("", `Rejection message: ${rejectionMessage}`);
-      }
-
-      textParts.push("", "Regards,", "BIT IIC Admin");
-
-      try {
-        emailSent = await sendEmail({
-          to: eventRow.owner_email,
-          subject,
-          text: textParts.join("\n"),
-        });
-      } catch {
-        emailSent = false;
-      }
-    }
+    const emailQueued = triggerReviewNotification({ eventRow, nextStatus, rejectionMessage });
 
     response.status(200).json({
       message: `Event ${nextStatus} successfully.`,
       data: {
         ...updatedEvent,
-        emailSent,
+        emailQueued,
       },
     });
   } catch (error) {
