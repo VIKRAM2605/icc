@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Building2, FileSpreadsheet, LogOut } from "lucide-react";
+import { Building2, CheckSquare, FileSpreadsheet, LayoutDashboard, LogOut } from "lucide-react";
 import { logoutUser } from "../../config/api";
 import { clearAuthSession, getAuthToken, getAuthUser } from "../utils/auth";
 
@@ -17,6 +17,8 @@ export default function Navbar() {
   const navigate = useNavigate();
   const user = useMemo(() => getAuthUser(), []);
   const canAccessEventDetails = ["admin", "faculty"].includes(user?.roleName);
+  const isAdmin = user?.roleName === "admin";
+  const isFaculty = user?.roleName === "faculty";
 
   const handleLogout = async () => {
     const token = getAuthToken();
@@ -34,7 +36,7 @@ export default function Navbar() {
 
   return (
     <aside className="flex h-full w-64 flex-col border-r border-gray-200 bg-gray-50">
-      <div className="border-b border-gray-200 px-4 py-4">
+      <div className="flex h-16 items-center border-b border-gray-200 px-4">
         <h1 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
           <Building2 size={18} className="text-gray-700" aria-hidden="true" />
           <span>BIT IIC</span>
@@ -44,12 +46,45 @@ export default function Navbar() {
       <nav className="flex-1 px-3 py-4">
         <p className="px-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Institute</p>
         <ul className="mt-2 space-y-1">
+          {isAdmin && (
+            <li>
+              <NavLink to="/admin/dashboard" className={linkClassName}>
+                <span className="flex items-center gap-2">
+                  <LayoutDashboard size={16} aria-hidden="true" />
+                  <span>Admin Dashboard</span>
+                </span>
+              </NavLink>
+            </li>
+          )}
+
+          {isAdmin && (
+            <li>
+              <NavLink to="/admin/review" className={linkClassName}>
+                <span className="flex items-center gap-2">
+                  <CheckSquare size={16} aria-hidden="true" />
+                  <span>Event Review</span>
+                </span>
+              </NavLink>
+            </li>
+          )}
+
+          {isFaculty && (
+            <li>
+              <NavLink to="/teacher/dashboard" className={linkClassName}>
+                <span className="flex items-center gap-2">
+                  <LayoutDashboard size={16} aria-hidden="true" />
+                  <span>Teacher Dashboard</span>
+                </span>
+              </NavLink>
+            </li>
+          )}
+
           {canAccessEventDetails && (
             <li>
               <NavLink to="/eventdetails" className={linkClassName}>
                 <span className="flex items-center gap-2">
                   <FileSpreadsheet size={16} aria-hidden="true" />
-                  <span>EventForm</span>
+                  <span>Event Form</span>
                 </span>
               </NavLink>
             </li>

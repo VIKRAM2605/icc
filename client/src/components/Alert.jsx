@@ -76,13 +76,13 @@ const Alert = ({
 
   return (
     <div
-      className={`fixed ${positionClasses} left-1/2 transform -translate-x-1/2 z-[9999] w-full max-w-md mx-auto transition-all duration-300 ${
+      className={`fixed ${positionClasses} left-1/2 transform -translate-x-1/2 z-9999 w-full max-w-md mx-auto transition-all duration-300 ${
         visible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
       }`}
     >
       <div className={`${styles.bg} border rounded-lg shadow-lg p-4 mx-4`}>
         <div className="flex items-start">
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <svg
               className={`h-5 w-5 ${styles.icon}`}
               fill="none"

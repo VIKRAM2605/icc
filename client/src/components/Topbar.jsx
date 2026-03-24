@@ -1,15 +1,41 @@
 import { useMemo } from "react";
+import { useLocation } from "react-router-dom";
 import { getAuthUser } from "../utils/auth";
 
 export default function Topbar() {
+  const location = useLocation();
   const user = useMemo(() => getAuthUser(), []);
+
+  const sectionTitle = useMemo(() => {
+    if (location.pathname.startsWith("/admin/dashboard")) {
+      return "Admin Dashboard";
+    }
+
+    if (location.pathname.startsWith("/admin/review")) {
+      return "Event Review";
+    }
+
+    if (location.pathname.startsWith("/teacher/dashboard")) {
+      return "Teacher Dashboard";
+    }
+
+    if (location.pathname.startsWith("/eventdetails")) {
+      return "Event Form";
+    }
+
+    if (location.pathname.startsWith("/event/")) {
+      return "Event Details";
+    }
+
+    return "Dashboard";
+  }, [location.pathname]);
 
   return (
     <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-6" style={{boxShadow: '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)'}}>
       <div className="flex items-center gap-3 text-sm text-gray-600">
         <span className="text-primary font-semibold">{user?.roleName || "User"}</span>
         <span className="text-gray-300">/</span>
-        <span className="font-semibold text-gray-800">Event Form</span>
+        <span className="font-semibold text-gray-800">{sectionTitle}</span>
       </div>
 
       <div className="flex items-center gap-4">

@@ -11,6 +11,10 @@ export const API_ROUTES = {
 	authMe: "/api/auth/me",
 	authLogout: "/api/auth/logout",
 	eventDetails: "/api/event-details",
+	adminApprovedEvents: "/api/event-details/admin/approved",
+	adminApprovedFilterOptions: "/api/event-details/admin/approved/filter-options",
+	adminReviewQueue: "/api/event-details/admin/review-queue",
+	facultyMyEvents: "/api/event-details/faculty/mine",
 };
 
 export const getApiUrl = (route) => {
@@ -25,6 +29,20 @@ export const API_URLS = {
 	authMe: getApiUrl(API_ROUTES.authMe),
 	authLogout: getApiUrl(API_ROUTES.authLogout),
 	eventDetails: getApiUrl(API_ROUTES.eventDetails),
+	adminApprovedEvents: getApiUrl(API_ROUTES.adminApprovedEvents),
+	adminApprovedFilterOptions: getApiUrl(API_ROUTES.adminApprovedFilterOptions),
+	adminReviewQueue: getApiUrl(API_ROUTES.adminReviewQueue),
+	facultyMyEvents: getApiUrl(API_ROUTES.facultyMyEvents),
+};
+
+const parseJsonResponse = async (response, fallbackMessage) => {
+	const payload = await response.json().catch(() => ({}));
+
+	if (!response.ok) {
+		throw new Error(payload.message || fallbackMessage);
+	}
+
+	return payload;
 };
 
 export const loginUser = async ({ email, password }) => {
@@ -113,4 +131,80 @@ export const createEventDetails = async (formData, token) => {
 	}
 
 	return payload;
+};
+
+export const getAdminApprovedEvents = async ({ token, quarter, date, fromDate, toDate, facultyName }) => {
+	const params = new URLSearchParams();
+
+	if (quarter) params.set("quarter", quarter);
+	if (date) params.set("date", date);
+	if (fromDate) params.set("fromDate", fromDate);
+	if (toDate) params.set("toDate", toDate);
+	if (facultyName) params.set("facultyName", facultyName);
+
+	const response = await fetch(`${API_URLS.adminApprovedEvents}?${params.toString()}`, {
+		method: "GET",
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+	});
+
+	return parseJsonResponse(response, "Failed to fetch approved events.");
+};
+
+export const getAdminReviewQueue = async (token) => {
+	const response = await fetch(API_URLS.adminReviewQueue, {
+		method: "GET",
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+	});
+
+	return parseJsonResponse(response, "Failed to fetch review queue.");
+};
+
+export const getAdminApprovedFilterOptions = async (token) => {
+	const response = await fetch(API_URLS.adminApprovedFilterOptions, {
+		method: "GET",
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+	});
+
+	return parseJsonResponse(response, "Failed to fetch filter options.");
+};
+
+export const reviewEventByAdmin = async ({ token, eventId, action, rejectionMessage }) => {
+	const response = await fetch(`${API_URLS.eventDetails}/admin/${eventId}/review`, {
+		method: "PATCH",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${token}`,
+		},
+		body: JSON.stringify({ action, rejectionMessage }),
+	});
+
+	return parseJsonResponse(response, "Failed to update event review status.");
+};
+
+export const getFacultyMyEvents = async (token) => {
+	const response = await fetch(API_URLS.facultyMyEvents, {
+		method: "GET",
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+	});
+
+	return parseJsonResponse(response, "Failed to fetch faculty events.");
+};
+
+export const getEventById = async ({ token, eventId }) => {
+	const response = await fetch(`${API_URLS.eventDetails}/${eventId}`, {
+		method: "GET",
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+	});
+
+	return parseJsonResponse(response, "Failed to fetch event details.");
 };

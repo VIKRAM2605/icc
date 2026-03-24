@@ -29,3 +29,17 @@ export function authenticateToken(request, response, next) {
     response.status(401).json({ message: "Invalid or expired token" });
   }
 }
+
+export function requireRole(allowedRoles = []) {
+  return (request, response, next) => {
+    const currentRole = String(request.user?.role ?? "").toLowerCase();
+    const normalizedAllowedRoles = allowedRoles.map((role) => String(role).toLowerCase());
+
+    if (!normalizedAllowedRoles.includes(currentRole)) {
+      response.status(403).json({ message: "Forbidden" });
+      return;
+    }
+
+    next();
+  };
+}
