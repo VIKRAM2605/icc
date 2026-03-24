@@ -78,7 +78,28 @@ export default function EventOverview() {
         severity: "success",
       });
 
-      await loadEvent();
+      const reviewData = payload?.data || {};
+      setEventData((previous) => {
+        if (!previous) {
+          return previous;
+        }
+
+        return {
+          ...previous,
+          status: reviewData.status || previous.status,
+          rejectionMessage:
+            reviewData.rejection_message !== undefined
+              ? reviewData.rejection_message
+              : previous.rejectionMessage,
+          reviewedAt: reviewData.reviewed_at || previous.reviewedAt,
+          approvedAt: reviewData.approved_at || previous.approvedAt,
+          rejectedAt: reviewData.rejected_at || previous.rejectedAt,
+        };
+      });
+
+      if (action === "approve") {
+        setRejectMessage("");
+      }
     } catch (error) {
       setAlertState({
         isOpen: true,
